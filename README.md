@@ -2,9 +2,9 @@
 
 A virtual, team-based DSA escape room built as a single web page. The system has crashed and your team is trapped inside the compiler. Solve 5 coding rooms, collect the code pieces and reboot the system before time runs out.
 
-Built by **[Your DSA Community Name]** for **[Fest Name], [College Name]**.
 
-**Live site:** [add your GitHub Pages or Netlify link here]
+
+**Live site:** [https://patiltanush14-glitch.github.io/escape-the-compiler/]
 
 ---
 
@@ -39,26 +39,15 @@ Built by **[Your DSA Community Name]** for **[Fest Name], [College Name]**.
 
 Highest score wins. Ties go to the faster finish time.
 
-## Run it locally
 
-No installation needed.
 
-1. Download or clone this repository.
-2. Open `index.html` in any modern browser.
 
-## Deploy it
-
-- **GitHub Pages:** Settings, then Pages, choose the `main` branch and `/ (root)`.
-- **Netlify:** drag the folder containing `index.html` onto app.netlify.com/drop.
-
-## Project structure
 
 | Path | Purpose |
 |---|---|
 | `index.html` | The whole game: page, styles and logic |
 | `README.md` | This file |
-| `CONTRIBUTING.md` | How to contribute |
-| `docs/` | Event plan and posters (optional) |
+
 
 ## Known limitations
 
@@ -68,7 +57,7 @@ No installation needed.
 
 ## Contributing
 
-Contributions are welcome: new rooms, bug fixes, better hints, accessibility and design improvements. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+Contributions are welcome: new rooms, bug fixes, better hints, accessibility and design improvements.
 
 Ideas on the roadmap:
 
