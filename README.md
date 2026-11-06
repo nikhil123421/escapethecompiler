@@ -67,6 +67,8 @@ Ideas on the roadmap:
 - More rooms (trees, linked lists, sorting, recursion)
 - Sound effects and confetti
 
-## License
-
-MIT License. See the `LICENSE` file.
+Step	Action
+1	Click Fork on your repo
+2	Edit index.html in their fork
+3	Click Contribute, then Open pull request
+4	You review the change and click Merge. The live site updates automatically in about a minute.
