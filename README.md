@@ -162,13 +162,6 @@ npm test
 
 ---
 
-## 🚢 Deployment
-
-- **Vercel**: Import the repository and set your environment variables (`ORGANIZER_PASSCODE`, `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`). Both frontend and serverless endpoints deploy together.
-- **Docker (Render / Railway / Fly.io)**: A multi-compiler `Dockerfile` is provided in `backend/` with native `g++`, `default-jdk`, `node`, and `python` ready to run.
-
----
-
 <div align="center">
 
 Made with ❤️ for the DSA community
