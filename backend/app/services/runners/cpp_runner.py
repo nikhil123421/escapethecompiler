@@ -94,6 +94,59 @@ def _generate_cpp_source(code: str, room: Room) -> str:
     return "\n".join(lines)
 
 
+def _run_cpp_cloud(source: str, room: Room) -> RunResult:
+    """Cloud fallback runner when g++ is not installed on the server (e.g. Vercel serverless)."""
+    import httpx
+
+    # Primary cloud runner: Judge0
+    try:
+        payload = {"source_code": source, "language_id": 105}  # C++ (GCC 14.1.0)
+        res = httpx.post("https://ce.judge0.com/submissions?wait=true", json=payload, timeout=12.0)
+        if res.status_code == 200:
+            data = res.json()
+            compile_output = data.get("compile_output")
+            if compile_output:
+                lines = compile_output.strip().splitlines()[:10]
+                return _fatal(room, "Compilation error:\n" + "\n".join(lines))
+
+            status_id = data.get("status", {}).get("id")
+            if status_id == 5:
+                return _fatal(room, "Your code took too long and was stopped (timeout).")
+            if status_id not in (3, None):
+                err = data.get("stderr") or data.get("message") or "Runtime error"
+                return _fatal(room, f"Program error: {err[:200]}")
+
+            stdout = data.get("stdout") or ""
+            if not stdout.strip():
+                return _fatal(room, "Program produced no output.")
+            answer = json.loads(stdout.strip().splitlines()[-1])
+            return compare_results(room, answer.get("results", []))
+    except Exception:
+        pass
+
+    # Secondary cloud runner: Wandbox
+    try:
+        payload = {"code": source, "compiler": "gcc-head"}
+        res = httpx.post("https://wandbox.org/api/compile.json", json=payload, timeout=12.0)
+        if res.status_code == 200:
+            data = res.json()
+            comp_err = data.get("compiler_error")
+            if comp_err and data.get("status") != "0":
+                lines = comp_err.strip().splitlines()[:10]
+                return _fatal(room, "Compilation error:\n" + "\n".join(lines))
+            stdout = data.get("program_output") or ""
+            if stdout.strip():
+                answer = json.loads(stdout.strip().splitlines()[-1])
+                return compare_results(room, answer.get("results", []))
+    except Exception:
+        pass
+
+    return _fatal(
+        room,
+        "C++ compiler (g++) is not available on this server and cloud compiler could not be reached.",
+    )
+
+
 def run_cpp_tests(code: str, room: Room, compiler_binary: str = "g++") -> RunResult:
     if len(code) > MAX_CODE_LENGTH:
         return _fatal(room, "Your code is too long.")
@@ -106,7 +159,7 @@ def run_cpp_tests(code: str, room: Room, compiler_binary: str = "g++") -> RunRes
 
         src_file.write_text(source, encoding="utf-8")
 
-        # 1. Compile
+        # 1. Compile locally
         try:
             compile_proc = subprocess.run(
                 [compiler_binary, "-O2", "-std=c++17", str(src_file), "-o", str(exe_file)],
@@ -116,7 +169,8 @@ def run_cpp_tests(code: str, room: Room, compiler_binary: str = "g++") -> RunRes
                 check=False,
             )
         except FileNotFoundError:
-            return _fatal(room, "C++ compiler (g++) is not available on this system.")
+            # If g++ is missing on the server (e.g. Vercel), fall back to cloud execution
+            return _run_cpp_cloud(source, room)
         except subprocess.TimeoutExpired:
             return _fatal(room, "Compilation took too long.")
 

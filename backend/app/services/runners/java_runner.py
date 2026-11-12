@@ -95,6 +95,46 @@ def _generate_runner_source(room: Room) -> str:
     return "\n".join(lines)
 
 
+def _run_java_cloud(code: str, room: Room) -> RunResult:
+    """Cloud fallback runner when javac is not installed on the server (e.g. Vercel serverless)."""
+    import httpx
+
+    # Prepare single-file Java harness: Main (with main()) + Solution
+    clean_user = code.replace("public class Solution", "class Solution").replace("import java.util.*;", "")
+    runner = _generate_runner_source(room).replace("public class Runner", "public class Main").replace("import java.util.*;", "")
+    combined = "import java.util.*;\n\n" + runner + "\n\n" + clean_user
+
+    try:
+        payload = {"source_code": combined, "language_id": 91}  # Java (JDK 17)
+        res = httpx.post("https://ce.judge0.com/submissions?wait=true", json=payload, timeout=12.0)
+        if res.status_code == 200:
+            data = res.json()
+            compile_output = data.get("compile_output")
+            if compile_output:
+                lines = compile_output.strip().splitlines()[:10]
+                return _fatal(room, "Compilation error:\n" + "\n".join(lines))
+
+            status_id = data.get("status", {}).get("id")
+            if status_id == 5:
+                return _fatal(room, "Your code took too long and was stopped (timeout).")
+            if status_id not in (3, None):
+                err = data.get("stderr") or data.get("message") or "Runtime error"
+                return _fatal(room, f"Program error: {err[:200]}")
+
+            stdout = data.get("stdout") or ""
+            if not stdout.strip():
+                return _fatal(room, "Program produced no output.")
+            answer = json.loads(stdout.strip().splitlines()[-1])
+            return compare_results(room, answer.get("results", []))
+    except Exception:
+        pass
+
+    return _fatal(
+        room,
+        "Java compiler (javac) is not available on this server and cloud compiler could not be reached.",
+    )
+
+
 def run_java_tests(
     code: str, room: Room, javac_binary: str = "javac", java_binary: str = "java"
 ) -> RunResult:
@@ -127,7 +167,8 @@ def run_java_tests(
                 check=False,
             )
         except FileNotFoundError:
-            return _fatal(room, "Java compiler (javac) is not available on this system.")
+            # If javac is missing on the server (e.g. Vercel), fall back to cloud execution
+            return _run_java_cloud(solution_source, room)
         except subprocess.TimeoutExpired:
             return _fatal(room, "Java compilation took too long.")
 

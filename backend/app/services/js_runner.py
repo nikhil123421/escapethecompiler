@@ -49,6 +49,49 @@ class RunResult:
         return self.fatal is None and self.total > 0 and self.passed == self.total
 
 
+def _run_js_cloud(code: str, room: Room) -> RunResult:
+    """Cloud fallback runner when node is not installed on the server."""
+    import httpx
+
+    harness_code = f"""
+{code}
+
+const results = [];
+const tests = {json.dumps([test.args for test in room.tests])};
+
+for (const args of tests) {{
+    try {{
+        const res = {room.entrypoint}(...args);
+        results.push({{ ok: true, value: JSON.stringify(res) }});
+    }} catch (err) {{
+        results.push({{ ok: false, error: String(err && err.message ? err.message : err) }});
+    }}
+}}
+
+console.log(JSON.stringify({{ results }}));
+"""
+    try:
+        payload = {"source_code": harness_code, "language_id": 97}  # Node.js
+        res = httpx.post("https://ce.judge0.com/submissions?wait=true", json=payload, timeout=12.0)
+        if res.status_code == 200:
+            data = res.json()
+            compile_output = data.get("compile_output") or data.get("stderr")
+            status_id = data.get("status", {}).get("id")
+            if status_id == 5:
+                return _fatal(room, "Your code took too long and was stopped.")
+            if compile_output and status_id not in (3, None):
+                return _fatal(room, "JavaScript evaluation error:\n" + compile_output.strip().splitlines()[-1])
+
+            stdout = data.get("stdout") or ""
+            if stdout.strip():
+                answer = json.loads(stdout.strip().splitlines()[-1])
+                return _compare(room, answer.get("results", []))
+    except Exception:
+        pass
+
+    return _fatal(room, "The JavaScript runner is not available right now.")
+
+
 def run_tests(code: str, room: Room, node_binary: str = "node") -> RunResult:
     if len(code) > MAX_CODE_LENGTH:
         return _fatal(room, "Your code is too long.")
@@ -76,7 +119,8 @@ def run_tests(code: str, room: Room, node_binary: str = "node") -> RunResult:
             check=False,
         )
     except FileNotFoundError:
-        return _fatal(room, "The code runner is not available right now.")
+        # Node not installed on host -> cloud fallback
+        return _run_js_cloud(code, room)
     except subprocess.TimeoutExpired:
         return _fatal(room, "Your code took too long and was stopped.")
 
