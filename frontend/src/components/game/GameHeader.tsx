@@ -122,20 +122,21 @@ export function GameHeader({ gameState, activeRoom }: GameHeaderProps) {
             </div>
           </div>
 
-          {/* Leave Team Button */}
+          {/* Logout / Exit Session */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (window.confirm("Leave this team session on this laptop?")) {
+              if (window.confirm("Log out of this team session on this laptop?")) {
                 signOutTeam();
+                window.location.href = "/";
               }
             }}
             className="text-muted hover:text-danger"
-            title="Leave team"
+            title="Log out and return to landing page"
           >
             <LogOut size={15} />
-            <span className="hidden md:inline">Leave</span>
+            <span className="hidden md:inline">Logout</span>
           </Button>
         </div>
       </div>
