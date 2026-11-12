@@ -1,84 +1,113 @@
-# Escape the Compiler
+<div align="center">
 
-A competitive, team-based DSA escape room platform built for hackathons, club events, and college coding tournaments.
+# ⚡ Escape the Compiler
 
-The concept is simple: the compiler process has crashed and locked your team out of the system. To reboot it, teams have to work through 5 progressive algorithmic rooms, pass all hidden test suites, unlock 5 recovery code fragments, and input them into the final vault before the 90-minute tournament clock runs out.
+**A competitive, team-based DSA escape room tournament platform.**  
+*The compiler process has crashed and your team is trapped inside. Solve 5 progressive coding rooms, collect the secret vault fragments, and reboot the system before time runs out.*
 
----
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
 
-## What It Does
-
-- **Multi-Language Support**: Participants can code in **C++17**, **Java**, **Python 3**, or **JavaScript**. Starter boilerplate and full test execution are provided for all 4 languages in every room.
-- **Serverless Cloud Compiler Fallback**: Runs native compilers (`g++`, `javac`, `node`, `python`) when hosted on a dedicated server or container, and automatically routes code through Wandbox cloud runners if deployed on serverless infrastructure like Vercel.
-- **Team Authentication & Anti-Hijacking**:
-  - No need for organizers to pre-create team accounts or generate passwords beforehand.
-  - New teams register on the spot with a **Team Code**, **Team Name**, up to **4 player names**, and their own **4-digit PIN**.
-  - Returning teams simply sign in using their **Team Code** and **PIN** to get straight back into their game session.
-  - Team codes are locked to their registered names and PINs to prevent accidental or intentional impersonation.
-- **Server-Authoritative Scoring & Clocks**:
-  - 90-minute tournament master timer.
-  - 15-minute room countdowns.
-  - Scoring factors in base solve points (+100 per room), remaining time speed bonuses, hint penalties (-20 each), and a final escape bonus (+200).
-- **Live Leaderboard**: Real-time tournament scoreboard featuring top-3 podium rankings, room solve badges, and filterable team cards.
-- **Organizer Admin Console (`/admin`)**: A password-protected panel for event coordinators to view live progress, inspect team submissions, review compilation errors, reset timers, or delete teams.
+</div>
 
 ---
 
-## The 5 Escape Rooms
+## ✨ Features & Highlights
 
-| Room | Name | Problem / Topic | Fragment |
+- 🌐 **Multi-Language Sandbox:** Full Monaco Code Editor support for **C++17**, **Java**, **Python 3**, and **JavaScript** with starter templates and isolated test runners for every room.
+- ☁️ **Cloud Compiler Fallback:** When deployed on serverless setups like Vercel where system compilers (`g++`, `javac`) aren't available, code execution seamlessly routes through Wandbox cloud runners without breaking.
+- 🛡️ **Team Authentication & Anti-Hijacking:**
+  - **Zero Pre-Configuration:** No need for organizers to manually create team credentials beforehand.
+  - **Self-Registration:** New teams register on the spot with a Team Code, Team Name, up to 4 players, and their own 4-digit PIN.
+  - **Simple Sign-In:** Returning teams can quickly resume their game using just their Team Code and PIN.
+  - **Impersonation Lock:** Prevents other groups from hijacking an existing team code.
+- 👥 **Team Roster:** Clean support for 1 to 4 players per team with live member names shown on headers, team cards, and leaderboards.
+- ⏱️ **Server-Authoritative Timing:** A 90-minute tournament clock and 15-minute room countdowns. Timers, hint penalties (-20 pts each), speed bonuses, and scores are managed strictly on the backend.
+- 🏆 **Live Real-Time Leaderboard:** Dynamic scoreboard featuring top-3 podium highlights, team search, and per-room solve badges.
+- 🛠️ **Organizer Admin Console:** A password-protected `/admin` dashboard to monitor teams, review live submissions and error logs, reset timers, and delete teams.
+- 🏛️ **Legacy Fallback:** The original standalone client-only version remains accessible at `/legacy`.
+
+---
+
+## 🧩 The Five Escape Rooms
+
+| Room | Title | Algorithm / Concept | Output Fragment |
 | :---: | :--- | :--- | :---: |
-| **01** | **Stack Overflow** | Postfix expression evaluation (`evalPostfix`) | `0x45` |
-| **02** | **Rotated Search** | Modified binary search on a rotated sorted array (`searchRotated`) | `0x53` |
-| **03** | **Network Trap** | Breadth-First Search (BFS) graph traversal (`bfs`) | `0x43` |
-| **04** | **Off-By-One Anomaly** | Array bounds and cumulative logic debugging (`sumArray`) | `0x41` |
-| **05** | **Cipher Lock** | Caesar shift cipher decoder (`caesarDecode`) | `0x50` |
+| **01** | **Stack Overflow** | Postfix / Reverse Polish Notation (`evalPostfix`) | `0x45` |
+| **02** | **Rotated Search** | Modified Binary Search on Rotated Sorted Array (`searchRotated`) | `0x53` |
+| **03** | **Network Trap** | Breadth-First Search (BFS) Graph Traversal (`bfs`) | `0x43` |
+| **04** | **Off-By-One Anomaly** | Array Bounds & Cumulative Logic Debugging (`sumArray`) | `0x41` |
+| **05** | **Cipher Lock** | Caesar / Shift Cipher Decoder (`caesarDecode`) | `0x50` |
 
-Solving all 5 rooms reveals the full reboot string (`ESCAPE`) needed to unlock the system vault.
-
----
-
-## Tech Stack
-
-- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, Lucide Icons, Sonner
-- **Code Editor**: Monaco Editor (VS Code core)
-- **Backend**: Python 3.13, FastAPI, Pydantic, Uvicorn
-- **Security**: JWT authentication (`HS256`), Bcrypt PIN hashing
-- **Database**: PostgreSQL (Supabase)
+Once all 5 rooms are completed, teams unlock the **System Vault**, assemble the 5 reboot fragments (`ESCAPE`), and trigger the system restore before the countdown expires.
 
 ---
 
-## Project Structure
+## 🏗️ Architecture
 
-```text
-escape-the-compiler/
-├── backend/
-│   ├── app/
-│   │   ├── routers/         # auth.py, game.py, admin.py
-│   │   ├── services/        # scoring.py and language runners (cpp, java, python, js)
-│   │   ├── models.py        # database models
-│   │   ├── schemas.py       # request and response validation
-│   │   └── repository.py    # Supabase queries & in-memory test fallback
-│   ├── tests/               # pytest test suite
-│   ├── Dockerfile           # container with g++, javac, node, python
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Monaco editor, game layout, leaderboard, UI primitives
-│   │   ├── pages/           # Landing, Login/Register, Game, Leaderboard, Admin
-│   │   └── lib/             # api client, auth context, utilities
-│   └── package.json
-└── supabase/
-    └── migrations/          # database schema migration SQL
+```mermaid
+flowchart TD
+    subgraph Client["Frontend (React 19 + Vite + Tailwind v4)"]
+        UI[Monaco Code Editor & Live Dashboard]
+        Router[React Router 7]
+        AuthCtx[Auth Context & JWT Storage]
+    end
+
+    subgraph Server["FastAPI Backend (Python 3.13)"]
+        AuthRouter["/api/auth (Register, PIN Sign In)"]
+        GameRouter["/api/game (Rooms, Code Runs, Hints, Vault)"]
+        AdminRouter["/api/admin (Dashboard, Delete Teams, Logs)"]
+        ScoringEng["Scoring Engine (Time Bonus, Hints, Rooms)"]
+    end
+
+    subgraph Execution["Multi-Language Sandbox Runners"]
+        PyRun[Python 3 Subprocess Sandbox]
+        JSRun[Node.js VM Subprocess Sandbox]
+        CPPRun[Native g++ / Cloud Wandbox Fallback]
+        JavaRun[Native javac / Cloud Wandbox Fallback]
+    end
+
+    subgraph Storage["Database & Persistence"]
+        SupaPostgres[("Supabase Postgres (4 Tables)")]
+        MemRepo[("In-Memory Fallback Repository")]
+    end
+
+    UI --> Router --> AuthCtx --> Server
+    Server --> ScoringEng
+    GameRouter --> Execution
+    Server --> SupaPostgres
+    Server -.-> MemRepo
 ```
 
 ---
 
-## Getting Started
+## 🗄️ Database Schema
 
-### 1. Prerequisites
+The database consists of **4 relational tables** in PostgreSQL:
+
+- **`events`**: Tournament metadata, 90-min master timer, 15-min room timer, and active status.
+- **`teams`**: Team code, team name, hashed team PIN (`pin_hash`), member list (`text[]`), score, started/escaped timestamps.
+- **`room_progress`**: Tracks room status (`unopened`, `open`, `solved`), solve timestamps, and hint count per room.
+- **`submissions`**: Complete audit log of every code submission, test case results, error messages, and timestamps.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
 - **Node.js 18+** and **npm**
 - **Python 3.11+**
+- *(Optional)* `g++` and `default-jdk` — *Cloud runner automatically handles these if not installed locally.*
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/escape-the-compiler.git
+cd escape-the-compiler
+```
 
 ### 2. Backend Setup
 ```bash
@@ -87,47 +116,45 @@ cd backend
 # Create and activate virtual environment
 python -m venv .venv
 
-# Windows:
+# Windows
 .venv\Scripts\activate
-# macOS/Linux:
+# macOS/Linux
 source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Create your .env from the example
+# Configure environment variables
 cp .env.example .env
 
-# Start the server
+# Run the backend
 python main.py
 ```
-The API will be running at `http://localhost:8000`. Interactive docs are available at `http://localhost:8000/docs`.
+The API will run at `http://localhost:8000`. OpenAPI documentation is available at `http://localhost:8000/docs`.
 
 ### 3. Frontend Setup
-In another terminal:
+In a new terminal:
 ```bash
 cd frontend
 
-# Install dependencies
+# Install packages
 npm install
 
-# Start the dev server
+# Start development server
 npm run dev
 ```
-The application will open at `http://localhost:5173`.
+The app will run at `http://localhost:5173`.
 
 ---
 
-## Running Tests
-
-To verify both the backend and frontend:
+## 🧪 Testing
 
 ```bash
-# Backend pytest suite
+# Run backend pytest suite (32 integration tests)
 cd backend
 python -m pytest
 
-# Frontend typecheck & unit tests
+# Run frontend type check & unit tests
 cd frontend
 npm run typecheck
 npm test
@@ -135,11 +162,15 @@ npm test
 
 ---
 
-## Deployment
+## 🚢 Deployment
 
-- **Vercel**: Deploy the repo directly. Add your `ORGANIZER_PASSCODE`, `JWT_SECRET`, `SUPABASE_URL`, and `SUPABASE_SECRET_KEY` in your project's Environment Variables.
-- **Docker / Render / Railway**: A complete `Dockerfile` is provided in `backend/` with all 4 compilers pre-installed for native local execution.
+- **Vercel**: Import the repository and set your environment variables (`ORGANIZER_PASSCODE`, `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`). Both frontend and serverless endpoints deploy together.
+- **Docker (Render / Railway / Fly.io)**: A multi-compiler `Dockerfile` is provided in `backend/` with native `g++`, `default-jdk`, `node`, and `python` ready to run.
 
 ---
 
+<div align="center">
+
 Made with ❤️ for the DSA community
+
+</div>
