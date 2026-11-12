@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ Escape the Compiler (v2)
+# ⚡ Escape the Compiler 
 
 **A competitive, team-based DSA escape room tournament platform.**  
 *The compiler process has crashed and your team is trapped inside. Solve 5 progressive coding rooms, collect the secret vault fragments, and reboot the system before time runs out.*
