@@ -43,20 +43,17 @@ def login(body: LoginRequest, repo: Repository = Depends(get_repository)) -> Aut
     if event is None:
         raise ApiError("no_event", "No event is running right now.", status=503)
 
-    if not verify_passcode(body.passcode.strip(), event.passcode_hash):
-        raise ApiError("bad_passcode", "Wrong event passcode.", status=401)
-
     code = body.team_code.strip().upper()
     name = " ".join(body.team_name.split())
     pin = body.pin.strip()
     team = repo.find_team(event.id, code)
 
     if team is not None:
-        # Check team name
-        if team.name.strip().lower() != name.lower():
+        # Returning team login: check name if provided, or verify PIN
+        if name and team.name.strip().lower() != name.lower():
             raise ApiError(
                 "name_taken",
-                f"Team {code} already belongs to a different team name.",
+                f"Team {code} is registered under the name '{team.name}'.",
                 status=409,
             )
         # Check team secret PIN if configured
@@ -64,7 +61,7 @@ def login(body: LoginRequest, repo: Repository = Depends(get_repository)) -> Aut
             if not pin:
                 raise ApiError(
                     "pin_required",
-                    f"Team {code} is protected by a team PIN. Please enter the team PIN.",
+                    f"Team {code} is protected by a team PIN. Please enter your team PIN.",
                     status=401,
                 )
             if not verify_passcode(pin, team.pin_hash):
@@ -77,14 +74,17 @@ def login(body: LoginRequest, repo: Repository = Depends(get_repository)) -> Aut
             # Set PIN if it wasn't previously set
             team.pin_hash = hash_passcode(pin)
 
-        new_members = [member.strip()[:40] for member in body.members if member.strip()][:10]
+        new_members = [member.strip()[:40] for member in body.members if member.strip()][:4]
         if new_members:
             team.members = new_members
         if team.started_at is None:
             team.started_at = utcnow()
         repo.save_team(team)
     else:
-        members = [member.strip()[:40] for member in body.members if member.strip()][:10]
+        # Creating a brand new team
+        if not name:
+            raise ApiError("name_required", "Please enter a team name to register.", status=422)
+        members = [member.strip()[:40] for member in body.members if member.strip()][:4]
         pin_hash = hash_passcode(pin) if pin else None
         team = repo.create_team(event.id, code, name, members, pin_hash=pin_hash)
         team.started_at = utcnow()

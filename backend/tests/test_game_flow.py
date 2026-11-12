@@ -96,13 +96,13 @@ def login(client, code="TEAM01", name="Null Pointer Exception", passcode="REBOOT
     return response.json()
 
 
-def test_wrong_passcode_is_rejected(client):
+def test_registration_requires_team_name(client):
     response = client.post(
         "/api/auth/login",
-        json={"team_code": "TEAM01", "team_name": "X", "passcode": "NOPE"},
+        json={"team_code": "NEWTEAM", "team_name": ""},
     )
-    assert response.status_code == 401
-    assert response.json()["code"] == "bad_passcode"
+    assert response.status_code == 422
+    assert response.json()["code"] == "name_required"
 
 
 def test_team_code_cannot_be_hijacked_with_a_different_name(client, auth):
