@@ -1,6 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Trophy, Users } from "lucide-react";
 
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import { LiveIndicator } from "@/components/leaderboard/LiveIndicator";
@@ -38,24 +36,9 @@ export function LeaderboardPage() {
 
   return (
     <div className="space-y-8 py-8 pb-20">
-      {/* Header and Compete Tabs */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface p-1">
-            <Link
-              to="/leaderboard"
-              className="inline-flex items-center gap-2 rounded-lg bg-elevated px-3.5 py-1.5 font-display text-xs font-semibold text-ink shadow-sm ring-1 ring-white/10"
-            >
-              <Trophy size={14} className="text-accent" /> Leaderboard
-            </Link>
-            <Link
-              to="/teams"
-              className="inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-display text-xs font-medium text-muted hover:text-ink transition-colors"
-            >
-              <Users size={14} /> Teams
-            </Link>
-          </div>
-          <h1 className="mt-4 font-display text-3xl font-semibold text-ink sm:text-4xl">
+          <h1 className="font-display text-3xl font-semibold text-ink sm:text-4xl">
             Live Leaderboard
           </h1>
           <p className="mt-1 text-sm text-muted">

@@ -1,4 +1,4 @@
-import { Home, LogIn, LogOut, Play, Trophy, Users } from "lucide-react";
+import { Home, LogIn, LogOut, Play, Trophy } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 import { buttonStyles } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export function SiteHeader() {
               </button>
             </>
           ) : (
-            /* Logged-Out Public View: Home, Board, Teams, and Login */
+            /* Logged-Out Public View: Home, Leaderboard, and Login */
             <>
               <NavLink
                 to="/"
@@ -78,16 +78,7 @@ export function SiteHeader() {
                   cn(navItem, isActive && "bg-white/[0.06] text-ink")
                 }
               >
-                <Trophy size={15} /> <span className="hidden sm:inline">Board</span>
-              </NavLink>
-
-              <NavLink
-                to="/teams"
-                className={({ isActive }) =>
-                  cn(navItem, isActive && "bg-white/[0.06] text-ink")
-                }
-              >
-                <Users size={15} /> <span className="hidden sm:inline">Teams</span>
+                <Trophy size={15} /> <span>Leaderboard</span>
               </NavLink>
 
               <NavLink
