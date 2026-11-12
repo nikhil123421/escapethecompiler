@@ -122,7 +122,7 @@ export function LoginPage() {
               />
             </Field>
 
-            <Field label="Team Secret PIN" htmlFor="team-pin" hint="e.g. 1234 (prevents hijacking)">
+            <Field label="Team Secret PIN" htmlFor="team-pin" hint="e.g. 1234 (set a strong pin)">
               <Input
                 id="team-pin"
                 type="password"
