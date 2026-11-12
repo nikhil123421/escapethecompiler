@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Escape the Compiler</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#14213d;--mute:#5b6477;--line:#d5dbe8;--acc:#2f5fd0;--ok:#1a8f4c;--bad:#c0392b;--code:#0f172a;--codeink:#e2e8f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#151c33;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2a3558;--acc:#6f95ff;--ok:#3ecf7e;--bad:#ff6b5b;--code:#070b17}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#151c33;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2a3558;--acc:#6f95ff;--ok:#3ecf7e;--bad:#ff6b5b;--code:#070b17}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+h1{margin:0 0 4px;font-size:1.6rem}h2{margin:0 0 6px;font-size:1.2rem}
+.mute{color:var(--mute);font-size:.92rem}
+input,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+label{display:block;margin:10px 0 4px;font-weight:600;font-size:.9rem}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.timer{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;font-weight:600;font-size:.9rem}
+.tab.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.tab.done{border-color:var(--ok);color:var(--ok)}
+textarea.code{min-height:210px;background:var(--code);color:var(--codeink);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;tab-size:2;white-space:pre}
+.slots{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.slot{min-width:44px;height:48px;border:2px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700}
+.slot.f{border:2px solid var(--ok);color:var(--ok)}
+.res div{padding:4px 0;font-size:.92rem}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.hint{background:var(--bg);border-left:4px solid var(--acc);padding:8px 10px;margin:6px 0;border-radius:4px;font-size:.92rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+table{width:100%;border-collapse:collapse}td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem}
+.hero{text-align:center;padding:36px 16px;border-radius:16px;margin-bottom:14px;color:#fff;background:linear-gradient(135deg,#14213d,#2f5fd0)}
+.hero h1{font-size:2.2rem;margin:0 0 8px}.hero p{max-width:560px;margin:0 auto 14px;opacity:.92}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+.chip{background:rgba(255,255,255,.16);border-radius:20px;padding:4px 12px;font-size:.85rem}
+.hero button{background:#fff;color:#14213d;font-size:1rem;padding:12px 26px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.step{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)}
+.step b{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;background:var(--acc);color:#fff;margin-bottom:6px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="hero" class="hero">
+  <h1>Escape the Compiler</h1>
+  <p>The system has crashed and your team is trapped inside. Code together, solve five DSA rooms, crack the final lock and race other teams to reboot it first.</p>
+  <div class="chips"><span class="chip">5 coding rooms</span><span class="chip">15 min per room</span><span class="chip">90 min total</span><span class="chip">Teams of 3-4</span><span class="chip">Live timer and hints</span></div>
+  <button onclick="document.getElementById('login').scrollIntoView({behavior:'smooth'})">Play now</button>
+</div>
+
+<div id="login" class="card">
+  <h2>Team login</h2>
+  <div class="mute">The system has crashed. Solve 5 coding rooms, collect the code pieces and reboot it before time runs out.</div>
+  <label for="tid">Team ID</label>
+  <input id="tid" placeholder="e.g. TEAM01" autocomplete="off">
+  <label for="tname">Team name</label>
+  <input id="tname" placeholder="Your team name" autocomplete="off">
+  <label for="pw">Event passcode</label>
+  <input id="pw" type="password" placeholder="Given by the organizers">
+  <div id="lerr" class="bad" style="margin-top:8px"></div>
+  <div class="row"><button id="go">Enter the system</button></div>
+  <p class="mute">Rules: 90 minutes in total and 15 minutes per room. Each room solved: +100. Solved within 10 minutes of opening it: +30. Each hint used: -20.</p>
+</div>
+
+<div id="game" class="hide">
+  <div class="bar">
+    <div><b id="tn"></b> <span class="mute" id="ti"></span></div>
+    <div style="text-align:center"><div class="timer" id="timer">90:00</div><div class="mute">Total time</div></div><div style="text-align:center"><div class="timer" id="rtimer">15:00</div><div class="mute">This room</div></div>
+    <div>Score: <b id="score">0</b></div>
+  </div>
+  <div class="card"><div class="mute" style="margin-bottom:6px">Code pieces collected</div><div class="slots" id="slots"></div></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="card" id="room"></div>
+  <div class="card hide" id="final">
+    <h2>Final lock</h2>
+    <div class="mute">Enter the 4-digit code (Rooms 1 to 4, in order) and the password word from Room 5.</div>
+    <div class="row"><input id="fcode" placeholder="4-digit code" style="max-width:180px" maxlength="4"><input id="fword" placeholder="Password" style="max-width:220px"><button id="fgo">Reboot system</button></div>
+    <div id="ferr" class="bad" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<div id="end" class="card hide">
+  <h1 id="etitle"></h1>
+  <p id="esum"></p>
+  <h2>Leaderboard (this device)</h2>
+  <table id="board"></table>
+  <div class="row"><button class="sec" id="again">New team login</button></div>
+</div>
+
+<div id="info">
+  <div class="card"><h2>How it works</h2><div class="grid">
+    <div class="step"><b>1</b><div>Log in with your Team ID, team name and the event passcode.</div></div>
+    <div class="step"><b>2</b><div>Open a room and write JavaScript to pass its tests. Each room has 15 minutes.</div></div>
+    <div class="step"><b>3</b><div>Every solved room reveals one code piece. Use hints if stuck (costs points).</div></div>
+    <div class="step"><b>4</b><div>Enter the 4-digit code and password at the final lock. Fastest team wins.</div></div>
+  </div></div>
+  <div class="card"><h2>The five rooms</h2><table>
+    <tr><th>Room</th><th>Topic</th><th>Your mission</th></tr>
+    <tr><td>1. Stack Room</td><td>Stack</td><td>Evaluate a postfix expression</td></tr>
+    <tr><td>2. Array Room</td><td>Binary search</td><td>Search a rotated sorted array</td></tr>
+    <tr><td>3. Graph Room</td><td>BFS</td><td>Find the traversal order of a graph</td></tr>
+    <tr><td>4. Debug Room</td><td>Debugging</td><td>Find and fix the bug in code</td></tr>
+    <tr><td>5. Cipher Room</td><td>Logic</td><td>Decode a Caesar cipher</td></tr>
+  </table></div>
+  <div class="card"><h2>Scoring</h2><table>
+    <tr><td>Room solved</td><td>+100</td></tr>
+    <tr><td>Solved within 10 minutes of opening</td><td>+30</td></tr>
+    <tr><td>Each hint used</td><td>-20</td></tr>
+    <tr><td>Escape the system</td><td>+50</td></tr>
+    <tr><td>Room runs out of time</td><td>Closed, no points</td></tr>
+  </table></div>
+</div>
+
+</div>
+<script>
+var LIMIT=90*60, ROOM_LIMIT=15*60, PASS="REBOOT", FINAL="9463";
+var ROOMS=[
+{n:"Stack Room",topic:"Stack",
+ task:"Complete evalPostfix(tokens). It receives an array like [\"5\",\"2\",\"3\",\"*\",\"+\",\"2\",\"-\"] and returns the numeric result. Operators: + - * /",
+ start:"function evalPostfix(tokens) {\n  var stack = [];\n  // your code here\n  return stack.pop();\n}",
+ fn:"evalPostfix",
+ tests:[[[["5","2","3","*","+","2","-"]],9],[[["4","2","/","3","+"]],5],[[["2","3","1","*","+","9","-"]],-4]],
+ hints:["Numbers are pushed. For an operator, pop two values.","Pop b first, then a, and compute a op b.","Switch on the token: if it is + - * / pop b, pop a and push the result; else push Number(token)."],
+ give:"9"},
+{n:"Array Room",topic:"Binary search",
+ task:"Complete searchRotated(arr, target). The sorted array was rotated, e.g. [6,7,8,1,2,3,4,5]. Return the index of target, or -1 if absent.",
+ start:"function searchRotated(arr, target) {\n  var lo = 0, hi = arr.length - 1;\n  // your code here\n  return -1;\n}",
+ fn:"searchRotated",
+ tests:[[[[6,7,8,1,2,3,4,5],2],4],[[[4,5,6,7,0,1,2],0],4],[[[1],1],0],[[[3,1],5],-1]],
+ hints:["Even in a rotated array, one half around mid is always sorted.","Check if arr[lo] <= arr[mid]: then the left half is sorted.","If target lies inside the sorted half, move into it; otherwise move to the other half."],
+ give:"4"},
+{n:"Graph Room",topic:"BFS",
+ task:"Complete bfs(graph, start). graph is an object of neighbour lists (already alphabetical). Return the visit order as a string, e.g. \"ABCDEF\".",
+ start:"function bfs(graph, start) {\n  var visited = {}, queue = [start], order = \"\";\n  // your code here\n  return order;\n}",
+ fn:"bfs",
+ tests:[[[{A:["B","C"],B:["A","D"],C:["A","D","E"],D:["B","C","F"],E:["C","F"],F:["D","E"]},"A"],"ABCDEF"],[[{X:["Y"],Y:["X","Z"],Z:["Y"]},"Y"],"YXZ"]],
+ hints:["BFS uses a queue: take from the front, add neighbours to the back.","Mark a node visited when you add it, so it is never added twice.","while queue is not empty: node = queue.shift(); order += node; push unvisited neighbours."],
+ give:"6"},
+{n:"Debug Room",topic:"Debugging",
+ task:"This function should return the sum of an array, but it is broken. Fix the bug so all tests pass.",
+ start:"function sumArray(arr) {\n  var sum = 0;\n  for (var i = 0; i <= arr.length; i++) {\n    sum = sum + arr[i];\n  }\n  return sum;\n}",
+ fn:"sumArray",
+ tests:[[[[1,2,3,4,5]],15],[[[]],0],[[[10]],10]],
+ hints:["The bug is in the for loop line.","The last valid index of an array is length - 1.","Change <= to < in the loop condition."],
+ give:"3"},
+{n:"Cipher Room",topic:"Logic",
+ task:"Complete caesarDecode(text, shift). Each letter was shifted forward by shift, so move it back (wrap around the alphabet). Uppercase letters only.",
+ start:"function caesarDecode(text, shift) {\n  var out = \"\";\n  // your code here\n  return out;\n}",
+ fn:"caesarDecode",
+ tests:[[["UHERRW",3],"REBOOT"],[["KHOOR",3],"HELLO"],[["ABC",1],"ZAB"]],
+ hints:["Use charCodeAt and String.fromCharCode. 'A' is 65.","Convert: (code - 65 - shift + 26) % 26 + 65.","Loop over text, apply the formula to each letter and append to out."],
+ give:"REBOOT"}
+];
+var S=null, cur=0, tick=null;
+function $(i){return document.getElementById(i)}
+function save(){try{localStorage.setItem("ec_state",JSON.stringify(S))}catch(e){}}
+function load(){try{var v=localStorage.getItem("ec_state");return v?JSON.parse(v):null}catch(e){return null}}
+function board(){try{return JSON.parse(localStorage.getItem("ec_board")||"[]")}catch(e){return[]}}
+function show(id){["login","game","end"].forEach(function(x){$(x).classList.toggle("hide",x!==id)});["hero","info"].forEach(function(x){$(x).classList.toggle("hide",id!=="login")})}
+function fmt(s){s=Math.max(0,s);var m=Math.floor(s/60),r=s%60;return(m<10?"0":"")+m+":"+(r<10?"0":"")+r}
+function elapsed(){return Math.floor((Date.now()-S.start)/1000)}
+function score(){var t=0;S.rooms.forEach(function(r){if(r.solved){t+=100;if(r.bonus)t+=30}t-=20*r.hints.length});return t}
+
+$("go").onclick=function(){
+  var id=$("tid").value.trim().toUpperCase(),nm=$("tname").value.trim(),pw=$("pw").value.trim().toUpperCase();
+  if(!/^TEAM(0[1-9]|10)$/.test(id)){$("lerr").textContent="Team ID must be TEAM01 to TEAM10.";return}
+  if(!nm){$("lerr").textContent="Please enter a team name.";return}
+  if(pw!==PASS){$("lerr").textContent="Wrong event passcode.";return}
+  S={id:id,name:nm,start:Date.now(),done:false,rooms:ROOMS.map(function(){return{solved:false,timedOut:false,hints:[],opened:null,bonus:false,code:"",solution:""}})};
+  save();begin();
+};
+function begin(){
+  show("game");$("tn").textContent=S.name;$("ti").textContent="("+S.id+")";
+  buildTabs();openRoom(cur);slots();
+  clearInterval(tick);tick=setInterval(upd,500);upd();
+}
+function upd(){
+  var left=LIMIT-elapsed();$("timer").textContent=fmt(left);$("timer").classList.toggle("low",left<600);
+  S.rooms.forEach(function(st,i){if(st.opened&&!st.solved&&!st.timedOut&&Date.now()-st.opened>=ROOM_LIMIT*1000)timeOut(i)});
+  var c=S.rooms[cur],rt=$("rtimer");
+  if(c.solved){rt.textContent="Solved";rt.classList.remove("low")}else if(c.timedOut){rt.textContent="Closed";rt.classList.add("low")}else{var rl=c.opened?ROOM_LIMIT-Math.floor((Date.now()-c.opened)/1000):ROOM_LIMIT;rt.textContent=fmt(rl);rt.classList.toggle("low",rl<180)}
+  $("score").textContent=score();
+  if(left<=0&&!S.done){finish(false)}
+}
+function timeOut(i){
+  var st=S.rooms[i];st.timedOut=true;save();var nx=-1;
+  for(var k=1;k<=ROOMS.length;k++){var j=(i+k)%ROOMS.length,q=S.rooms[j];if(!q.solved&&!q.timedOut){nx=j;break}}
+  slots();buildTabs();if(cur===i){openRoom(nx>=0?nx:i)}
+}
+function buildTabs(){
+  var t=$("tabs");t.innerHTML="";
+  ROOMS.forEach(function(r,i){
+    var b=document.createElement("div");b.className="tab"+(i===cur?" on":"")+(S.rooms[i].solved?" done":"");
+    b.textContent=(i+1)+". "+r.n+(S.rooms[i].solved?" \u2713":S.rooms[i].timedOut?" (closed)":"");
+    b.onclick=function(){openRoom(i)};t.appendChild(b);
+  });
+  var all=S.rooms.every(function(r){return r.solved||r.timedOut});
+  $("final").classList.toggle("hide",!all);
+}
+function slots(){
+  var s=$("slots");s.innerHTML="";
+  S.rooms.forEach(function(r,i){
+    var d=document.createElement("div");d.className="slot"+(r.solved?" f":"");
+    d.textContent=(r.solved||r.timedOut)?ROOMS[i].give:"?";
+    d.style.minWidth=i===4?"110px":"44px";s.appendChild(d);
+  });
+}
+function openRoom(i){
+  cur=i;var R=ROOMS[i],st=S.rooms[i];
+  if(!st.opened){st.opened=Date.now();save()}
+  buildTabs();
+  var h=$("room");h.innerHTML="";
+  var t=document.createElement("h2");t.textContent="Room "+(i+1)+": "+R.n+" ("+R.topic+")";h.appendChild(t);
+  var p=document.createElement("div");p.className="mute";p.textContent=R.task;h.appendChild(p);
+  var lb=document.createElement("label");lb.textContent="Your code (JavaScript)";h.appendChild(lb);
+  var ta=document.createElement("textarea");ta.className="code";ta.spellcheck=false;ta.value=st.code||R.start;
+  ta.oninput=function(){st.code=ta.value;save()};
+  ta.onkeydown=function(e){if(e.key==="Tab"){e.preventDefault();var s=ta.selectionStart;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=s+2;st.code=ta.value}};
+  h.appendChild(ta);
+  var row=document.createElement("div");row.className="row";
+  var run=document.createElement("button");run.textContent="Run tests";
+  var hb=document.createElement("button");hb.className="sec";hb.textContent="Get hint (-20)";
+  var rs=document.createElement("button");rs.className="sec";rs.textContent="Reset code";
+  row.appendChild(run);row.appendChild(hb);row.appendChild(rs);h.appendChild(row);
+  var hints=document.createElement("div");h.appendChild(hints);
+  var res=document.createElement("div");res.className="res";res.style.marginTop="10px";h.appendChild(res);
+  function drawHints(){hints.innerHTML="";st.hints.forEach(function(x,k){var d=document.createElement("div");d.className="hint";d.textContent="Hint "+(k+1)+": "+x;hints.appendChild(d)});hb.disabled=st.hints.length>=R.hints.length}
+  drawHints();
+  if(st.solved){res.innerHTML="";var d=document.createElement("div");d.className="ok";d.textContent="Room solved. You received: "+R.give;res.appendChild(d)}
+  if(st.timedOut&&!st.solved){var tm=document.createElement("div");tm.className="bad";tm.textContent="Time\u2019s up for this room. It is closed with no points, and the code piece is given to you: "+R.give;res.appendChild(tm);run.disabled=true;hb.disabled=true;ta.readOnly=true}
+  hb.onclick=function(){if(st.hints.length<R.hints.length){st.hints.push(R.hints[st.hints.length]);save();drawHints();upd()}};
+  rs.onclick=function(){st.code="";save();ta.value=R.start;res.innerHTML=""};
+  run.onclick=function(){
+    res.innerHTML="";var f;
+    try{f=new Function(ta.value+"\nreturn typeof "+R.fn+"==='function'?"+R.fn+":null;")()}catch(e){add("Syntax error: "+e.message,false);return}
+    if(!f){add("Function "+R.fn+" not found.",false);return}
+    var pass=0;
+    R.tests.forEach(function(c,k){
+      var out;try{out=f.apply(null,JSON.parse(JSON.stringify(c[0])))}catch(e){out="error: "+e.message}
+      var ok=out===c[1];if(ok)pass++;
+      add("Test "+(k+1)+": "+(ok?"passed":"failed (got "+JSON.stringify(out)+")"),ok);
+    });
+    if(pass===R.tests.length&&!st.solved){
+      st.solved=true;st.bonus=(Date.now()-st.opened)<600000;save();
+      add("All tests passed. You received: "+R.give+(st.bonus?"  (+30 speed bonus)":""),true);
+      slots();buildTabs();upd();
+    }
+  };
+  function add(m,ok){var d=document.createElement("div");d.className=ok?"ok":"bad";d.textContent=(ok?"\u2713 ":"\u2717 ")+m;res.appendChild(d)}
+}
+$("fgo").onclick=function(){
+  var c=$("fcode").value.trim(),w=$("fword").value.trim().toUpperCase();
+  if(c===FINAL&&w===PASS){finish(true)}else{$("ferr").textContent="Lock did not open. Check the digits (in room order) and the word."}
+};
+function finish(win){
+  if(S.done)return;S.done=true;S.finishedAt=elapsed();save();clearInterval(tick);
+  var sc=score()+(win?50:0);
+  var b=board();b.push({team:S.name,id:S.id,score:sc,time:S.finishedAt,win:win});
+  try{localStorage.setItem("ec_board",JSON.stringify(b))}catch(e){}
+  show("end");
+  $("etitle").textContent=win?"System rebooted!":"Time\u2019s up";
+  $("esum").textContent=(win?"Your team escaped in ":"Final time: ")+fmt(S.finishedAt)+". Score: "+sc+(win?" (includes +50 escape bonus).":".");
+  b.sort(function(x,y){return y.score-x.score||x.time-y.time});
+  var t=$("board");t.innerHTML="<tr><th>#</th><th>Team</th><th>Score</th><th>Time</th></tr>";
+  b.slice(0,10).forEach(function(r,i){var tr=document.createElement("tr");[i+1,r.team+" ("+r.id+")",r.score,fmt(r.time)].forEach(function(v){var td=document.createElement("td");td.textContent=v;tr.appendChild(td)});t.appendChild(tr)});
+}
+$("again").onclick=function(){try{localStorage.removeItem("ec_state")}catch(e){}S=null;cur=0;$("pw").value="";show("login")};
+(function(){var s=load();if(s){S=s;if(S.done){S=null}else{begin();return}}show("login")})();
+</script>
+</body>
+</html>
