@@ -31,6 +31,10 @@ class Settings(BaseSettings):
 
     node_binary: str = "node"
 
+    # Optional dedicated Judge0 instance or RapidAPI key (for cloud C++/Java execution on serverless)
+    judge0_url: str = "https://ce.judge0.com"
+    judge0_api_key: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

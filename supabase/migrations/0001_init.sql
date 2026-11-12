@@ -31,6 +31,7 @@ create table if not exists public.teams (
     event_id       uuid not null references public.events (id) on delete cascade,
     code           text not null,
     name           text not null,
+    pin_hash       text,
     members        text[] not null default '{}',
     started_at     timestamptz,
     finished_at    timestamptz,

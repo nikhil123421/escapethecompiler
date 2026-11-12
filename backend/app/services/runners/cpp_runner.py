@@ -97,11 +97,24 @@ def _generate_cpp_source(code: str, room: Room) -> str:
 def _run_cpp_cloud(source: str, room: Room) -> RunResult:
     """Cloud fallback runner when g++ is not installed on the server (e.g. Vercel serverless)."""
     import httpx
+    from app.config import get_settings
+
+    settings = get_settings()
+    judge0_base = (settings.judge0_url or "https://ce.judge0.com").rstrip("/")
+    headers = {}
+    if settings.judge0_api_key:
+        headers["X-RapidAPI-Key"] = settings.judge0_api_key
+        headers["X-RapidAPI-Host"] = judge0_base.replace("https://", "").replace("http://", "")
 
     # Primary cloud runner: Judge0
     try:
         payload = {"source_code": source, "language_id": 105}  # C++ (GCC 14.1.0)
-        res = httpx.post("https://ce.judge0.com/submissions?wait=true", json=payload, timeout=12.0)
+        res = httpx.post(
+            f"{judge0_base}/submissions?wait=true",
+            json=payload,
+            headers=headers,
+            timeout=12.0,
+        )
         if res.status_code == 200:
             data = res.json()
             compile_output = data.get("compile_output")

@@ -13,6 +13,7 @@ import { cn } from "@/lib/cn";
 export function LoginPage() {
   const [teamCode, setTeamCode] = useState("");
   const [teamName, setTeamName] = useState("");
+  const [teamPin, setTeamPin] = useState("");
   const [passcode, setPasscode] = useState("");
   const [playerCount, setPlayerCount] = useState<number>(2);
   const [players, setPlayers] = useState<string[]>(["", ""]);
@@ -54,6 +55,7 @@ export function LoginPage() {
       await signInTeam({
         team_code: teamCode.trim().toUpperCase(),
         team_name: teamName.trim(),
+        pin: teamPin.trim(),
         members: cleanMembers,
         passcode: passcode.trim(),
       });
@@ -108,16 +110,30 @@ export function LoginPage() {
             </Field>
           </div>
 
-          <Field label="Team name" htmlFor="team-name">
-            <Input
-              id="team-name"
-              value={teamName}
-              onChange={(event) => setTeamName(event.target.value)}
-              placeholder="Null Pointer Exception"
-              autoComplete="organization"
-              required
-            />
-          </Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Team name" htmlFor="team-name" hint="e.g. Binary Beasts">
+              <Input
+                id="team-name"
+                value={teamName}
+                onChange={(event) => setTeamName(event.target.value)}
+                placeholder="Null Pointer Exception"
+                autoComplete="organization"
+                required
+              />
+            </Field>
+
+            <Field label="Team Secret PIN" htmlFor="team-pin" hint="e.g. 1234 (prevents hijacking)">
+              <Input
+                id="team-pin"
+                type="password"
+                value={teamPin}
+                onChange={(event) => setTeamPin(event.target.value)}
+                placeholder="Choose a 4-digit PIN"
+                autoComplete="new-password"
+                maxLength={32}
+              />
+            </Field>
+          </div>
 
           {/* Number of People in Team */}
           <div className="space-y-2 rounded-xl border border-line bg-inset/50 p-4">

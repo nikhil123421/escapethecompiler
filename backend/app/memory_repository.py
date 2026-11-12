@@ -79,13 +79,21 @@ class MemoryRepository:
             team = self.teams.get(team_id)
             return replace(team) if team else None
 
-    def create_team(self, event_id: str, code: str, name: str, members: list[str]) -> Team:
+    def create_team(
+        self,
+        event_id: str,
+        code: str,
+        name: str,
+        members: list[str],
+        pin_hash: str | None = None,
+    ) -> Team:
         with self._lock:
             team = Team(
                 id=f"team-{len(self.teams) + 1}",
                 event_id=event_id,
                 code=code,
                 name=name,
+                pin_hash=pin_hash,
                 members=list(members),
                 created_at=utcnow(),
             )

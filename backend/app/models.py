@@ -26,6 +26,7 @@ class Team:
     event_id: str
     code: str
     name: str
+    pin_hash: str | None = None
     members: list[str] = field(default_factory=list)
     started_at: datetime | None = None
     finished_at: datetime | None = None

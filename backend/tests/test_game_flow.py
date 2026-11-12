@@ -115,6 +115,58 @@ def test_team_code_cannot_be_hijacked_with_a_different_name(client, auth):
     assert response.json()["code"] == "name_taken"
 
 
+def test_team_pin_prevents_hijacking_even_with_same_name(client):
+    # Team 1 registers with PIN 1234
+    res = client.post(
+        "/api/auth/login",
+        json={
+            "team_code": "TEAM99",
+            "team_name": "Secret Agents",
+            "pin": "1234",
+            "passcode": "REBOOT",
+        },
+    )
+    assert res.status_code == 200
+
+    # Attacker types same code and same name, but wrong PIN
+    res_fail = client.post(
+        "/api/auth/login",
+        json={
+            "team_code": "TEAM99",
+            "team_name": "Secret Agents",
+            "pin": "0000",
+            "passcode": "REBOOT",
+        },
+    )
+    assert res_fail.status_code == 401
+    assert res_fail.json()["code"] == "bad_pin"
+
+    # Attacker omits PIN
+    res_no_pin = client.post(
+        "/api/auth/login",
+        json={
+            "team_code": "TEAM99",
+            "team_name": "Secret Agents",
+            "pin": "",
+            "passcode": "REBOOT",
+        },
+    )
+    assert res_no_pin.status_code == 401
+    assert res_no_pin.json()["code"] == "pin_required"
+
+    # Teammate types correct PIN
+    res_ok = client.post(
+        "/api/auth/login",
+        json={
+            "team_code": "TEAM99",
+            "team_name": "Secret Agents",
+            "pin": "1234",
+            "passcode": "REBOOT",
+        },
+    )
+    assert res_ok.status_code == 200
+
+
 def test_state_requires_a_token(client):
     assert client.get("/api/game/state").status_code == 401
 

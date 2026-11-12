@@ -14,7 +14,7 @@ from app.schemas import (
     OrganizerLoginRequest,
     TeamOut,
 )
-from app.security import check_organizer_passcode, create_token, verify_passcode
+from app.security import check_organizer_passcode, create_token, hash_passcode, verify_passcode
 from app.services import scoring
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -48,18 +48,35 @@ def login(body: LoginRequest, repo: Repository = Depends(get_repository)) -> Aut
 
     code = body.team_code.strip().upper()
     name = " ".join(body.team_name.split())
+    pin = body.pin.strip()
     team = repo.find_team(event.id, code)
 
     if team is not None:
-        # Anyone with the passcode could type someone else's code. Requiring the
-        # same team name keeps casual impersonation out without locking a team
-        # to one laptop: all teammates share the name.
+        # Check team name
         if team.name.strip().lower() != name.lower():
             raise ApiError(
                 "name_taken",
                 f"Team {code} already belongs to a different team name.",
                 status=409,
             )
+        # Check team secret PIN if configured
+        if team.pin_hash:
+            if not pin:
+                raise ApiError(
+                    "pin_required",
+                    f"Team {code} is protected by a team PIN. Please enter the team PIN.",
+                    status=401,
+                )
+            if not verify_passcode(pin, team.pin_hash):
+                raise ApiError(
+                    "bad_pin",
+                    "Incorrect team PIN.",
+                    status=401,
+                )
+        elif pin:
+            # Set PIN if it wasn't previously set
+            team.pin_hash = hash_passcode(pin)
+
         new_members = [member.strip()[:40] for member in body.members if member.strip()][:10]
         if new_members:
             team.members = new_members
@@ -68,7 +85,8 @@ def login(body: LoginRequest, repo: Repository = Depends(get_repository)) -> Aut
         repo.save_team(team)
     else:
         members = [member.strip()[:40] for member in body.members if member.strip()][:10]
-        team = repo.create_team(event.id, code, name, members)
+        pin_hash = hash_passcode(pin) if pin else None
+        team = repo.create_team(event.id, code, name, members, pin_hash=pin_hash)
         team.started_at = utcnow()
         repo.save_team(team)
 

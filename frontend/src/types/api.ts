@@ -157,6 +157,7 @@ export interface AuthResponse {
 export interface LoginInput {
   team_code: string;
   team_name: string;
+  pin?: string;
   members: string[];
   passcode: string;
 }

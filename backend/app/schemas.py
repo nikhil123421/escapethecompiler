@@ -21,6 +21,7 @@ class Strict(BaseModel):
 class LoginRequest(Strict):
     team_code: str = Field(min_length=1, max_length=32)
     team_name: str = Field(min_length=1, max_length=60)
+    pin: str = Field(default="", max_length=32)
     members: list[str] = Field(default_factory=list, max_length=10)
     passcode: str = Field(min_length=1, max_length=100)
 

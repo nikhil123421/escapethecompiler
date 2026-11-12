@@ -38,6 +38,7 @@ def _team_from_row(row: dict) -> Team:
         event_id=row["event_id"],
         code=row["code"],
         name=row["name"],
+        pin_hash=row.get("pin_hash"),
         members=row.get("members") or [],
         started_at=from_iso(row.get("started_at")),
         finished_at=from_iso(row.get("finished_at")),
@@ -89,7 +90,14 @@ class Repository(Protocol):
 
     def get_team(self, team_id: str) -> Team | None: ...
 
-    def create_team(self, event_id: str, code: str, name: str, members: list[str]) -> Team: ...
+    def create_team(
+        self,
+        event_id: str,
+        code: str,
+        name: str,
+        members: list[str],
+        pin_hash: str | None = None,
+    ) -> Team: ...
 
     def save_team(self, team: Team) -> None: ...
 
@@ -176,7 +184,14 @@ class SupabaseRepository:
         rows = self.client.table("teams").select("*").eq("id", team_id).limit(1).execute().data
         return _team_from_row(rows[0]) if rows else None
 
-    def create_team(self, event_id: str, code: str, name: str, members: list[str]) -> Team:
+    def create_team(
+        self,
+        event_id: str,
+        code: str,
+        name: str,
+        members: list[str],
+        pin_hash: str | None = None,
+    ) -> Team:
         row = (
             self.client.table("teams")
             .insert(
@@ -185,6 +200,7 @@ class SupabaseRepository:
                     "code": code,
                     "name": name,
                     "members": members,
+                    "pin_hash": pin_hash,
                 }
             )
             .execute()
@@ -197,6 +213,7 @@ class SupabaseRepository:
             {
                 "name": team.name,
                 "members": team.members,
+                "pin_hash": team.pin_hash,
                 "started_at": to_iso(team.started_at),
                 "finished_at": to_iso(team.finished_at),
                 "escaped": team.escaped,
