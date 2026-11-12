@@ -1,9 +1,8 @@
-import { ArrowRight, Clock3, Code2, LockKeyhole, LogIn, Play, Users } from "lucide-react";
+import { ArrowRight, Clock3, Code2, LockKeyhole, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { buttonStyles } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useAuth } from "@/lib/auth";
 
 const rooms = [
   ["01", "Stack Room", "Evaluate a postfix expression."],
@@ -14,8 +13,6 @@ const rooms = [
 ];
 
 export function LandingPage() {
-  const { team } = useAuth();
-
   return (
     <>
       <section className="grid min-h-[calc(100vh-4rem)] items-center gap-12 py-16 md:grid-cols-[1.1fr_.9fr] md:py-24">
@@ -24,15 +21,9 @@ export function LandingPage() {
           <h1 className="max-w-3xl text-5xl font-semibold leading-[0.94] sm:text-6xl lg:text-7xl">Escape the <span className="text-gradient">Compiler.</span></h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-muted sm:text-lg">Five coding rooms. One locked system. Work with your team, earn every digit, and reboot before the clock runs out.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            {team ? (
-              <Link to="/play" className={buttonStyles("primary", "lg")}>
-                <Play size={17} /> Resume Escape ({team.code})
-              </Link>
-            ) : (
-              <Link to="/login" className={buttonStyles("primary", "lg")}>
-                <LogIn size={17} /> Login / Register <ArrowRight size={17} />
-              </Link>
-            )}
+            <Link to="/login" className={buttonStyles("primary", "lg")}>
+              Login / Sign Up <ArrowRight size={17} />
+            </Link>
             <Link to="/leaderboard" className={buttonStyles("secondary", "lg")}>Watch the board</Link>
           </div>
           <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 font-mono text-xs text-muted">
